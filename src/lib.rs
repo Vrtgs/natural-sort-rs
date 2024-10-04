@@ -228,7 +228,7 @@ impl<T> NaturalSort<T> for [T] {
     }
 }
 
-pub fn natural_cmp<Ref: ?Sized + NaturalSortable, T: AsRef<Ref>>(x: &T, y: &T) -> Ordering {
+pub fn natural_cmp<Ref: ?Sized + NaturalSortable, T: ?Sized + AsRef<Ref>>(x: &T, y: &T) -> Ordering {
     NaturalSortable::natural_cmp(x.as_ref(), y.as_ref())
 }
 
