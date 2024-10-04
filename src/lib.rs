@@ -1,5 +1,4 @@
 #![no_std]
-
 #![doc = include_str!("../README.md")]
 
 #[cfg(feature = "alloc")]
@@ -45,7 +44,7 @@ impl<T: Clone, Ref: ?Sized> Clone for Natural<T, Ref> {
 }
 impl<T: AsRef<Ref>, Ref: ?Sized + NaturalSortable> PartialEq for Natural<T, Ref> {
     fn eq(&self, other: &Self) -> bool {
-        self.0.as_ref().eq(other.0.as_ref()) 
+        self.0.as_ref().eq(other.0.as_ref())
     }
 }
 impl<T: AsRef<Ref>, Ref: ?Sized + NaturalSortable> PartialOrd for Natural<T, Ref> {
@@ -84,9 +83,7 @@ mod sealed {
 
     pub trait NaturalSort {}
 
-    impl<T> NaturalSort for [T] {
-        
-    }
+    impl<T> NaturalSort for [T] {}
 }
 
 pub trait NaturalSortable: sealed::NaturalSortable {
@@ -142,15 +139,15 @@ impl<T> NaturalSort<T> for [T] {
     /// ## Example
     /// ```
     /// # use natural_sort_rs::NaturalSort;
-    /// 
+    ///
     /// let mut files = ["file0002.txt", "file1.txt"];
-    /// 
+    ///
     /// files.natural_sort_unstable::<str>();
     /// assert_eq!(files, ["file1.txt", "file0002.txt"])
     /// ```
     fn natural_sort_unstable<Ref: ?Sized + NaturalSortable>(&mut self)
     where
-        T: AsRef<Ref>
+        T: AsRef<Ref>,
     {
         self.sort_unstable_by(natural_cmp)
     }
@@ -168,7 +165,7 @@ impl<T> NaturalSort<T> for [T] {
     fn natural_sort_unstable_by_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> K,
-        K: AsRef<Ref>
+        K: AsRef<Ref>,
     {
         self.sort_unstable_by_key(|x| Natural::new(f(x)))
     }
@@ -186,11 +183,10 @@ impl<T> NaturalSort<T> for [T] {
     #[cfg(feature = "alloc")]
     fn natural_sort<Ref: ?Sized + NaturalSortable>(&mut self)
     where
-        T: AsRef<Ref>
+        T: AsRef<Ref>,
     {
         self.sort_by(natural_cmp);
     }
-
 
     /// like `<[T]>::sort_by_key` but using natural sort order
     /// ## Example
@@ -206,7 +202,7 @@ impl<T> NaturalSort<T> for [T] {
     fn natural_sort_by_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> K,
-        K: AsRef<Ref>
+        K: AsRef<Ref>,
     {
         self.sort_by_key(|x| Natural::new(f(x)))
     }
@@ -226,7 +222,7 @@ impl<T> NaturalSort<T> for [T] {
     fn natural_sort_by_cached_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> K,
-        K: AsRef<Ref>
+        K: AsRef<Ref>,
     {
         self.sort_by_cached_key(|x| Natural::new(f(x)))
     }
@@ -277,10 +273,10 @@ fn cmp_digits(a: &mut &[u8], b: &mut &[u8]) -> Ordering {
         // as i only increases up to slice_start.len() (when all of the slice is digits)
         unsafe { slice_start.get_unchecked(..i) }
     }
-    
+
     let a = read_digits(a);
     let b = read_digits(b);
-    
+
     match a.len().cmp(&b.len()) {
         Ordering::Equal => {
             // a.len() == b.len()
@@ -314,10 +310,9 @@ mod tests {
             "file11.txt",
             "file0002.txt",
         ];
-        
+
         files.natural_sort::<str>();
-        
-        
+
         // Here, "file11.txt" comes last because `natural_sort` saw that there was a
         // number inside the string, and did a numerical, rather than lexical,
         // comparison.
