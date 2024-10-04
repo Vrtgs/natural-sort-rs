@@ -1,7 +1,9 @@
-// #![no_std]
-// 
-// #[cfg(feature = "alloc")]
-// extern crate alloc;
+#![no_std]
+
+#![doc = include_str!("../README.md")]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 use core::cmp::Ordering;
 use core::marker::PhantomData;
@@ -79,6 +81,12 @@ mod sealed {
             self == other
         }
     }
+
+    pub trait NaturalSort {}
+
+    impl<T> NaturalSort for [T] {
+        
+    }
 }
 
 pub trait NaturalSortable: sealed::NaturalSortable {
@@ -101,7 +109,7 @@ impl NaturalSortable for [u8] {
     }
 }
 
-pub trait NaturalSort<T> {
+pub trait NaturalSort<T>: sealed::NaturalSort {
     fn natural_sort_unstable<Ref: ?Sized + NaturalSortable>(&mut self)
     where
         T: AsRef<Ref>;
@@ -130,6 +138,16 @@ pub trait NaturalSort<T> {
 }
 
 impl<T> NaturalSort<T> for [T] {
+    /// like `<[T]>::sort_unstable` but using natural sort order
+    /// ## Example
+    /// ```
+    /// # use natural_sort_rs::NaturalSort;
+    /// 
+    /// let mut files = ["file0002.txt", "file1.txt"];
+    /// 
+    /// files.natural_sort_unstable::<str>();
+    /// assert_eq!(files, ["file1.txt", "file0002.txt"])
+    /// ```
     fn natural_sort_unstable<Ref: ?Sized + NaturalSortable>(&mut self)
     where
         T: AsRef<Ref>
@@ -137,6 +155,16 @@ impl<T> NaturalSort<T> for [T] {
         self.sort_unstable_by(natural_cmp)
     }
 
+    /// like `<[T]>::sort_unstable_by_key` but using natural sort order
+    /// ## Example
+    /// ```
+    /// # use natural_sort_rs::NaturalSort;
+    ///
+    /// let mut files = [4, 2, 3, 1];
+    ///
+    /// files.natural_sort_unstable_by_key::<str, _, _>(|x| x.to_string());
+    /// assert_eq!(files, [1, 2, 3, 4])
+    /// ```
     fn natural_sort_unstable_by_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
         F: FnMut(&T) -> K,
@@ -145,6 +173,16 @@ impl<T> NaturalSort<T> for [T] {
         self.sort_unstable_by_key(|x| Natural::new(f(x)))
     }
 
+    /// like `<[T]>::sort` but using natural sort order
+    /// ## Example
+    /// ```
+    /// # use natural_sort_rs::NaturalSort;
+    ///
+    /// let mut files = ["file0002.txt", "file1.txt"];
+    ///
+    /// files.natural_sort::<str>();
+    /// assert_eq!(files, ["file1.txt", "file0002.txt"])
+    /// ```
     #[cfg(feature = "alloc")]
     fn natural_sort<Ref: ?Sized + NaturalSortable>(&mut self)
     where
@@ -153,6 +191,17 @@ impl<T> NaturalSort<T> for [T] {
         self.sort_by(natural_cmp);
     }
 
+
+    /// like `<[T]>::sort_by_key` but using natural sort order
+    /// ## Example
+    /// ```
+    /// # use natural_sort_rs::NaturalSort;
+    ///
+    /// let mut files = [4, 2, 3, 1];
+    ///
+    /// files.natural_sort_by_key::<str, _, _>(|x| x.to_string());
+    /// assert_eq!(files, [1, 2, 3, 4])
+    /// ```
     #[cfg(feature = "alloc")]
     fn natural_sort_by_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
@@ -162,6 +211,17 @@ impl<T> NaturalSort<T> for [T] {
         self.sort_by_key(|x| Natural::new(f(x)))
     }
 
+    /// like sort but using natural sort order
+    /// ## Example
+    /// ```
+    /// # use std::path::{Path, PathBuf};
+    /// # use natural_sort_rs::NaturalSort;
+    ///
+    /// let mut files = ["file1", "file2", "file4", "file3"].map(PathBuf::from);
+    ///
+    /// files.natural_sort_by_key::<[u8], _, _>(|x| x.as_os_str().as_encoded_bytes().to_owned());
+    /// assert_eq!(files, ["file1", "file2", "file3", "file4"].map(Path::new))
+    /// ```
     #[cfg(feature = "alloc")]
     fn natural_sort_by_cached_key<Ref: ?Sized + NaturalSortable, K, F>(&mut self, mut f: F)
     where
@@ -244,6 +304,9 @@ mod tests {
         files.sort();
         assert_eq!(files, ["file1.txt", "file11.txt", "file2.txt"]);
 
+        assert!(Natural::str("file0002.txt") > Natural::str("file1B.txt"));
+        assert!(Natural::str("file0002.txt") < Natural::str("file11.txt"));
+
         let mut files = [
             "file1.txt",
             "file1B.txt",
@@ -251,9 +314,6 @@ mod tests {
             "file11.txt",
             "file0002.txt",
         ];
-
-        assert!(Natural::str("file0002.txt") > Natural::str("file1B.txt"));
-        assert!(Natural::str("file0002.txt") < Natural::str("file11.txt"));
         
         files.natural_sort::<str>();
         

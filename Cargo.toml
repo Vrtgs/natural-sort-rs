@@ -3,8 +3,10 @@ name = "natural-sort-rs"
 version = "0.1.0"
 edition = "2021"
 authors = ["Vrtgs"]
-license = "CC0-1"
-repository = ""
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Vrtgs/natural-sort-rs"
+readme = "README.md"
+description = "sorting strings based on [Natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order)"
 
 [features]
 default = ["alloc"]
