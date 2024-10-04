@@ -1,0 +1,13 @@
+[package]
+name = "natural-sort-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["Vrtgs"]
+license = "CC0-1"
+repository = ""
+
+[features]
+default = ["alloc"]
+alloc = []
+
+[dependencies]
