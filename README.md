@@ -1,3 +1,6 @@
+[![Crates.io](https://img.shields.io/crates/v/natural-sort-rs.svg)](https://crates.io/crates/natural-sort-rs)
+[![docs.rs](https://docs.rs/natural-sort-rs/badge.svg)](https://docs.rs/natural-sort-rs)
+
 A `#![no_std]` implementation of [natural sort order](https://en.wikipedia.org/wiki/Natural_sort_order)
 
 # Example
