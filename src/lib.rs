@@ -280,6 +280,7 @@ fn cmp_digits(a: &mut &[u8], b: &mut &[u8]) -> Ordering {
 
     match a.len().cmp(&b.len()) {
         Ordering::Equal => {
+            // Safety:
             // a.len() == b.len()
             // if this isn't true, usize has a bad Ord impl,
             // if that's the case, anything can be UB :>
