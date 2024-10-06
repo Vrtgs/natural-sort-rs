@@ -262,16 +262,17 @@ fn cmp_digits(a: &mut &[u8], b: &mut &[u8]) -> Ordering {
     fn read_digits<'a>(slice: &mut &'a [u8]) -> &'a [u8] {
         trim_zeros(slice);
 
-        let slice_start = *slice;
+        let slice_start = slice.as_ptr();
         let mut i = 0;
         while let [b'0'..=b'9', rest @ ..] = *slice {
             i += 1;
             *slice = rest;
         }
 
+        // Safety:
         // i < slice_start.len()
         // as i only increases up to slice_start.len() (when all of the slice is digits)
-        unsafe { slice_start.get_unchecked(..i) }
+        unsafe { core::slice::from_raw_parts(slice_start, i) }
     }
 
     let a = read_digits(a);
