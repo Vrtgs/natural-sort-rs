@@ -7,7 +7,7 @@ extern crate alloc;
 use core::cmp::Ordering;
 use core::marker::PhantomData;
 
-#[derive(Debug, Copy, Default)]
+#[derive(Debug, Default)]
 #[repr(transparent)]
 pub struct Natural<T, Ref: ?Sized = str>(pub T, PhantomData<Ref>);
 
@@ -30,6 +30,8 @@ impl<T> NaturalAscii<T> {
         Self(value, PhantomData)
     }
 }
+
+impl<T: Copy, Ref: ?Sized> Copy for Natural<T, Ref> {}
 
 impl<T: Clone, Ref: ?Sized> Clone for Natural<T, Ref> {
     #[inline]
@@ -253,13 +255,13 @@ fn cmp_ascii(mut a: &[u8], mut b: &[u8]) -> Ordering {
 
 #[inline]
 fn cmp_digits(a: &mut &[u8], b: &mut &[u8]) -> Ordering {
-    fn trim_zeros(slice: &mut &[u8]) {
+    const fn trim_zeros(slice: &mut &[u8]) {
         while let [b'0', rest @ ..] = *slice {
             *slice = rest
         }
     }
 
-    fn read_digits<'a>(slice: &mut &'a [u8]) -> &'a [u8] {
+    const fn read_digits<'a>(slice: &mut &'a [u8]) -> &'a [u8] {
         trim_zeros(slice);
 
         let slice_start = slice.as_ptr();
