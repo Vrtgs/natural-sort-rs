@@ -17,6 +17,10 @@ impl<T, Ref: ?Sized> Natural<T, Ref> {
     pub fn new(value: T) -> Self {
         Self(value, PhantomData)
     }
+
+    pub fn into_inner(self) -> T {
+        self.0
+    }
 }
 
 impl<T> Natural<T> {
@@ -230,7 +234,10 @@ impl<T> NaturalSort<T> for [T] {
     }
 }
 
-pub fn natural_cmp<Ref: ?Sized + NaturalSortable, T: ?Sized + AsRef<Ref>>(x: &T, y: &T) -> Ordering {
+pub fn natural_cmp<Ref: ?Sized + NaturalSortable, T: ?Sized + AsRef<Ref>>(
+    x: &T,
+    y: &T,
+) -> Ordering {
     NaturalSortable::natural_cmp(x.as_ref(), y.as_ref())
 }
 
